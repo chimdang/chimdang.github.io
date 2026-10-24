@@ -237,6 +237,7 @@
       q$('.result').innerHTML = '';
       q$('.next').hidden = true;
       score();
+      if (api.active && q.say) JP.autoSay(q.say);
     };
     api.answer = (i) => {
       if (st.answered || !st.cur || i >= st.cur.options.length) return;
@@ -253,6 +254,7 @@
       const nb = q$('.next'); nb.hidden = false; nb.focus();
       score();
       opts.onAnswer && opts.onAnswer(st.cur, ok);
+      if (st.cur.sayAfter) JP.autoSay(st.cur.sayAfter);
     };
     api.restart = () => { st.ok = st.total = st.streak = 0; api.next(); };
     api.key = (ev) => {
@@ -283,12 +285,34 @@
   let favs = JP.load(FAV_KEY, {});
   JP.isFav = (id) => !!favs[id];
   JP.toggleFav = (id) => { if (favs[id]) delete favs[id]; else favs[id] = 1; JP.store(FAV_KEY, favs); return !!favs[id]; };
+  let voice = null;
+  function pickVoice() {
+    const vs = (window.speechSynthesis.getVoices() || []).filter((v) => /^ja/i.test(v.lang));
+    const rank = (v) => (/google|natural|nanami|keita|online/i.test(v.name) ? 0 : /haruka|ayumi|ichiro|kyoko|otoya/i.test(v.name) ? 1 : 2);
+    voice = vs.sort((a, b) => rank(a) - rank(b))[0] || null;
+  }
+  if ('speechSynthesis' in window) {
+    pickVoice();
+    window.speechSynthesis.addEventListener('voiceschanged', pickVoice);
+  }
   JP.say = (text) => {
     if (!('speechSynthesis' in window) || !text) return;
     window.speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text);
-    u.lang = 'ja-JP'; u.rate = 0.9;
+    u.lang = 'ja-JP'; u.rate = 0.85;
+    if (voice) u.voice = voice;
     window.speechSynthesis.speak(u);
+  };
+  // tự đọc: bật tắt chung; chỉ đọc khi người dùng đã bật và trình duyệt có giọng
+  let auto = JP.load('jp-autosay', true);
+  JP.autoSay = (text) => { if (auto && text) JP.say(text); };
+  JP.autoPick = () => ('speechSynthesis' in window)
+    ? '<label class="pick"><input type="checkbox" class="auto-chk"' + (auto ? ' checked' : '') + '><span>Tự đọc</span></label>' : '';
+  JP.bindAuto = (root) => {
+    root.querySelectorAll('.auto-chk').forEach((x) => x.addEventListener('change', () => {
+      auto = x.checked; JP.store('jp-autosay', auto);
+      if (!auto && 'speechSynthesis' in window) window.speechSynthesis.cancel();
+    }));
   };
   JP.sayBtn = (text) =>
     ('speechSynthesis' in window)
@@ -324,9 +348,10 @@
       if (turn) { card.classList.remove('is-turning'); void card.offsetWidth; card.classList.add('is-turning'); }
     }
     api.start = () => { st.queue = opts.items(); st.ok = st.ng = 0; st.hist = []; api.next(); };
-    api.next = () => { st.cur = st.queue.shift() || null; st.flipped = false; paint(); };
+    const speakNow = () => { if (api.active && st.cur && opts.speak) JP.autoSay(opts.speak(st.cur, st.flipped)); };
+    api.next = () => { st.cur = st.queue.shift() || null; st.flipped = false; paint(); speakNow(); };
     api.repaint = () => paint();
-    api.flip = () => { if (st.cur) { st.flipped = !st.flipped; paint(true); } };
+    api.flip = () => { if (st.cur) { st.flipped = !st.flipped; paint(true); speakNow(); } };
     api.rate = (ok) => {
       if (!st.cur) return;
       const snap = JP.rec(st.cur.id) ? Object.assign({}, JP.rec(st.cur.id)) : null;

@@ -89,7 +89,7 @@
       '<div class="group tool-row"><span class="group-label">Mặt trước</span>' +
       '<label class="pick"><input type="radio" name="vdir" value="jv"><span>Tiếng Nhật</span></label>' +
       '<label class="pick"><input type="radio" name="vdir" value="vj"><span>Tiếng Việt</span></label>' +
-      JP.furiPick() + '<label class="pick"><input type="checkbox" id="vfav"><span>Chỉ thẻ đã gắn tim</span></label></div><div id="vflash"></div>';
+      JP.furiPick() + JP.autoPick() + '<label class="pick"><input type="checkbox" id="vfav"><span>Chỉ thẻ đã gắn tim</span></label></div><div id="vflash"></div>';
     document.querySelector('input[name=vdir][value=' + ui.dir + ']').checked = true;
     $('vfav').checked = ui.favOnly;
     document.querySelectorAll('input[name=vdir]').forEach((x) => x.addEventListener('change', () => { ui.dir = x.value; save(); flash.start(); }));
@@ -100,10 +100,12 @@
         return JP.order(list, 10).slice(0, 20);
       },
       render: (e, flipped) => JP.vocabCard(e, flipped, ui.dir),
+      speak: (e, flipped) => (ui.dir === 'vj') === flipped ? firstReading(e) : '',   // đọc khi mặt tiếng Nhật hiện ra
       onRate: (e, ok) => JP.rate(e.id, ok),
       empty: ui.favOnly ? 'Chưa có thẻ nào gắn tim trong phạm vi này.' : 'Hết lượt này rồi.',
     });
     JP.bindFuri($('vocab-body'), () => flash.repaint());
+    JP.bindAuto($('vocab-body'));
     flash.start();
   }
 
@@ -143,6 +145,8 @@
       ask: kind === 'meaning' ? 'Chọn nghĩa đúng của từ này' : kind === 'word' ? 'Chọn từ tiếng Nhật đúng với nghĩa này' : 'Chọn cách đọc đúng của từ này',
       prompt: kind === 'word' ? '<p class="prompt-vi">' + esc(e.vi) + '</p>' + pos(e) : '<p class="bigword" lang="ja">' + word(e) + '</p>',
       hint: '',
+      say: kind === 'meaning' ? firstReading(e) : '',        // dạng "cách đọc" không đọc trước vì đó là đáp án
+      sayAfter: firstReading(e),
       options: opts.map((o) => ({
         html: field === 'w' ? word(o) : esc(field === 'r' ? JP.slash(o.r) : o.vi),
         plain: esc(field === 'w' ? o.w : field === 'r' ? JP.slash(o.r) : o.vi),
@@ -157,7 +161,7 @@
       '<div class="group tool-row"><span class="group-label">Dạng câu hỏi</span>' +
       [['mix', 'Trộn'], ['meaning', 'Từ sang nghĩa'], ['word', 'Nghĩa sang từ'], ['reading', 'Cách đọc']].map(([v, l]) =>
         '<label class="pick"><input type="radio" name="vq" value="' + v + '"><span>' + l + '</span></label>').join('') +
-      JP.furiPick() + '</div><div id="vquiz"></div>';
+      JP.furiPick() + JP.autoPick() + '</div><div id="vquiz"></div>';
     document.querySelector('input[name=vq][value=' + ui.qmode + ']').checked = true;
     document.querySelectorAll('input[name=vq]').forEach((x) => x.addEventListener('change', () => { ui.qmode = x.value; save(); quiz.next(); }));
     quiz = JP.quiz($('vquiz'), {
@@ -166,6 +170,7 @@
       onAnswer: (q, ok) => JP.rate(q.id, ok),
     });
     JP.bindFuri($('vocab-body'), () => quiz.next());
+    JP.bindAuto($('vocab-body'));
     quiz.next();
   }
 

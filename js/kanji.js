@@ -180,6 +180,8 @@
       ask: m === 'read' ? 'Chọn cách đọc đúng của từ này' : m === 'write' ? 'Chọn chữ kanji đúng với cách đọc này' : 'Chọn âm Hán Việt của chữ này',
       prompt: '<p class="bigword" lang="ja">' + esc(shown) + '</p>',
       hint: m === 'write' ? 'Nghĩa: ' + item.vi : '',
+      say: m === 'write' ? item.r.split('/')[0].replace(/\s/g, '') : '',
+      sayAfter: item.r ? item.r.split('/')[0].replace(/\s/g, '') : (item.words && item.words[0] ? item.words[0].r.split('/')[0].replace(/\s/g, '') : ''),
       options: opts.map((o) => ({ html: optHtml(o), plain: optPlain(o), lang: m === 'hv' ? 'vi' : 'ja' })),
       answer: opts.indexOf(item),
       explain, right,
@@ -190,7 +192,7 @@
       '<div class="group tool-row"><span class="group-label">Dạng câu hỏi</span>' +
       [['read', 'Đọc kanji'], ['write', 'Viết kanji'], ['hv', 'Hán Việt'], ['mix', 'Trộn cả ba']].map(([v, l]) =>
         '<label class="pick"><input type="radio" name="kq" value="' + v + '"><span>' + l + '</span></label>').join('') +
-      JP.furiPick() + '</div><div id="kquiz"></div>';
+      JP.furiPick() + JP.autoPick() + '</div><div id="kquiz"></div>';
     document.querySelector('input[name=kq][value=' + ui.qmode + ']').checked = true;
     document.querySelectorAll('input[name=kq]').forEach((x) => x.addEventListener('change', () => { ui.qmode = x.value; save(); quiz.next(); }));
     quiz = JP.quiz($('kquiz'), {
@@ -199,6 +201,7 @@
       onAnswer: (q, ok) => JP.rate(q.id, ok),
     });
     JP.bindFuri($('kanji-body'), () => quiz.next());
+    JP.bindAuto($('kanji-body'));
     quiz.next();
   }
 

@@ -121,6 +121,7 @@
     flash = JP.flash($('rflash'), {
       items: () => queue.slice(),
       render: (it, flipped) => cardFor(it, flipped),
+      speak: (it, flipped) => (it.type === 'v' && !flipped ? JP.firstReading(it.e) : it.type === 'k' && flipped && it.e.words[0] ? it.e.words[0].r.split('/')[0].replace(/\s/g, '') : ''),
       onRate: (it, ok) => JP.rate(it.id, ok),
       empty: 'Xong lượt ôn. Bạn có thể quay về mục lục hoặc học thêm.',
       restart: false,
