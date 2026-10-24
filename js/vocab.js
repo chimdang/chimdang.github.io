@@ -17,12 +17,51 @@
 
   // ---- hiển thị từ: furigana nằm trên từ, cách đọc có vạch cao độ
   const HAS_KANJI = /[㐀-鿿々]/;
-  const firstReading = (e) => (e.r || e.w).split(' / ')[0].replace(/\s/g, '');
+  const firstReading = (e) => (e.r || e.w).split(/\s*\/\s*/)[0].replace(/\s/g, '');
   JP.firstReading = firstReading;
-  JP.rubyWord = (e) => {
-    const rd = firstReading(e);
-    return HAS_KANJI.test(e.w) && rd && rd !== e.w
-      ? '<ruby>' + esc(e.w) + '<rp>(</rp><rt>' + esc(rd) + '</rt><rp>)</rp></ruby>' : esc(e.w);
+  // Furigana đặt đúng trên từng cụm chữ Hán: ghép phần kana trong từ với cách đọc để tách ra, ví dụ 引き出す = 引(ひ) き 出(だ) す.
+  // Phần mở đầu như （～を） hay phần cuối như （します） được tách ra, không nằm trong furigana.
+  const KANJI_RUN = /([\u3400-\u9fff々]+)/;
+  const toHira = (s) => s.replace(/[\u30a1-\u30f6]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 0x60));
+  const reEsc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  JP.rubyWord = (e, cls) => {
+    const rtc = cls ? ' class="' + cls + '"' : '';
+    const ws = e.w.split('/'), rs = (e.r || '').split(/\s*\/\s*/);
+    if (ws.length > 1 && ws.length === rs.length) return ws.map((x, i) => JP.rubyWord({ w: x.trim(), r: rs[i] }, cls)).join(' / ');
+    let w = e.w, rd = firstReading(e);
+    if (!HAS_KANJI.test(w) || !rd || rd === w) return esc(w);
+    let pre = '', suf = '';
+    const mp = w.match(/^((?:[（(][^）)]*[）)]|[～〜])+)/);
+    if (mp) {
+      pre = mp[1]; w = w.slice(pre.length);
+      const inner = pre.replace(/[（）()～〜]/g, '');
+      if (inner && toHira(rd).startsWith(toHira(inner))) rd = rd.slice(inner.length);
+    }
+    const ms = w.match(/((?:[（(][^）)]*[）)])+)$/);
+    if (ms) {
+      suf = ms[1]; w = w.slice(0, w.length - suf.length);
+      if (rd.endsWith(suf)) rd = rd.slice(0, rd.length - suf.length);
+    }
+    const wrap = (base, rt) => '<ruby>' + esc(base) + '<rp>(</rp><rt' + rtc + '>' + esc(rt) + '</rt><rp>)</rp></ruby>';
+    const parts = w.split(KANJI_RUN).filter(Boolean);
+    const kana = parts.filter((p) => !KANJI_RUN.test(p));
+    let html = null;
+    if (kana.every((p) => /^[\u3040-\u30ffー]+$/.test(p))) {
+      const pat = parts.map((p) => (KANJI_RUN.test(p) ? '(.+?)' : reEsc(toHira(p)))).join('');
+      const m = new RegExp('^' + pat + '$').exec(toHira(rd));
+      if (m) {
+        let i = 1, pos = 0;
+        html = parts.map((p) => {
+          if (!KANJI_RUN.test(p)) { pos += p.length; return esc(p); }
+          const g = m[i++];
+          const out = wrap(p, rd.slice(pos, pos + g.length));
+          pos += g.length;
+          return out;
+        }).join('');
+      }
+    }
+    if (!html) html = wrap(w, rd);   // không tách được thì đặt furigana trên cả từ
+    return esc(pre) + html + esc(suf);
   };
   JP.accentHTML = (e) => {
     const parts = (e.r || e.w).split(' / ');

@@ -314,9 +314,9 @@
       if (!auto && 'speechSynthesis' in window) window.speechSynthesis.cancel();
     }));
   };
-  JP.sayBtn = (text) =>
+  JP.sayBtn = (text, small) =>
     ('speechSynthesis' in window)
-      ? '<button class="say" type="button" data-say="' + JP.esc(text) + '" aria-label="Nghe phát âm"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>'
+      ? '<button class="say' + (small ? ' say-sm' : '') + '" type="button" data-say="' + JP.esc(text) + '" aria-label="Nghe phát âm"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>'
       : '';
 
   // ---- thẻ ghi nhớ: xem mặt trước, lật thẻ, rồi chọn "Chưa nhớ" hoặc "Đã học" (vuốt trái/phải hoặc phím ← →)

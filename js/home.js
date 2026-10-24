@@ -67,6 +67,7 @@
       '<dl class="today-sum"><div><dt>Từ vựng</dt><dd><b>' + tot.vd + '</b> trên ' + tot.v + '</dd></div>' +
       '<div><dt>Kanji</dt><dd><b>' + tot.kd + '</b> trên ' + tot.k + '</dd></div>' +
       '<div><dt>Mẫu ngữ pháp</dt><dd><b>' + tot.gd + '</b> trên ' + tot.g + '</dd></div></dl></div>' +
+      '<div id="planner"></div>' +
       '<h2 class="toc-title">Mục lục</h2><div class="toc">' +
       rows.map((r) =>
         '<div class="toc-row"><div class="cell toc-num" aria-hidden="true"><span lang="ja">' + r.ch + '</span></div>' +
@@ -81,6 +82,7 @@
         '<p class="toc-meta">' + r.g.length + ' mẫu, đã thuộc ' + r.gDone + '</p>' + bar(r.gDone, r.g.length) +
         '<p class="toc-secs">' + r.secs.map((s) => '<a href="#grammar" data-open="grammar" data-ch="' + r.ch + '" data-sec="' + s + '">' + r.ch + s + '</a>').join('') + '</p></div></div>').join('') +
       '</div><p class="reset-row"><button class="link" id="reset-all">Xoá toàn bộ tiến độ</button></p>';
+    if (JP.planner) JP.planner.mount($('planner'));
   }
 
   home.addEventListener('click', (ev) => {
@@ -130,6 +132,7 @@
     flash.active = true;
     flash.start();
   }
+  JP.startReview = startReview;
   JP.reviewView = { show() { if (flash) flash.active = true; }, hide() { if (flash) flash.active = false; } };
   JP.homeView = { show() { paintHome(); }, hide() {} };
   JP.on('progress', () => { if (!home.hidden) paintHome(); });
