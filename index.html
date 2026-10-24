@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="Ôn tiếng Nhật: từ vựng, kanji và ngữ pháp theo từng chương. Thẻ ghi nhớ, trắc nghiệm, tập viết và lặp lại ngắt quãng.">
+<title>Ôn tiếng Nhật</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect x='3' y='3' width='58' height='58' fill='%23fbfdf9' stroke='%235e9c82' stroke-width='4'/%3E%3Ctext x='32' y='47' font-size='44' text-anchor='middle' fill='%231b2547'%3E字%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Klee+One:wght@400;600&display=swap">
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-in">
+    <div class="brand">
+      <span class="cell brand-mark" aria-hidden="true"><span lang="ja">字</span></span>
+      <h1>Ôn tiếng Nhật</h1>
+    </div>
+    <nav class="tabs" aria-label="Các phần ôn tập">
+      <button class="tab" data-view="home"><span class="tab-ja" lang="ja" aria-hidden="true">目</span>Mục lục</button>
+      <button class="tab" data-view="vocab"><span class="tab-ja" lang="ja" aria-hidden="true">語</span>Từ vựng</button>
+      <button class="tab" data-view="kanji"><span class="tab-ja" lang="ja" aria-hidden="true">漢</span>Kanji</button>
+      <button class="tab" data-view="grammar"><span class="tab-ja" lang="ja" aria-hidden="true">文</span>Ngữ pháp</button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap main">
+  <section class="view" id="v-home" aria-label="Mục lục"></section>
+  <section class="view" id="v-vocab" aria-label="Từ vựng" hidden></section>
+  <section class="view" id="v-kanji" aria-label="Kanji" hidden></section>
+  <section class="view" id="v-grammar" aria-label="Ngữ pháp" hidden></section>
+  <section class="view" id="v-review" aria-label="Ôn hôm nay" hidden></section>
+</main>
+
+<script src="data/vocab.js"></script>
+<script src="data/kanji.js"></script>
+<script src="data/grammar.js"></script>
+<script src="js/core.js"></script>
+<script src="js/vocab.js"></script>
+<script src="js/kanji.js"></script>
+<script src="js/grammar.js"></script>
+<script src="js/home.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
